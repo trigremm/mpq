@@ -7,7 +7,7 @@ import os
 import sys
 import datetime
 
-from secret import DIR
+from secret import DIR # dir where scripts located
 
 MODE = 'run' in sys.argv
 PROCESSES = multiprocessing.cpu_count() // 2
