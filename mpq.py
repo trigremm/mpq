@@ -1,36 +1,35 @@
-__VERSION__ = '0.1.3'
+__VERSION__ = "0.1.4"
 
-
+import argparse
 import time
 import multiprocessing
 import os
-import sys
 import datetime
 
-from secret import DIR # dir where scripts located
-
-MODE = 'run' in sys.argv
-PROCESSES = multiprocessing.cpu_count() // 2
-DRAFT = os.path.join(DIR, 'draft.out')
+parser = argparse.ArgumentParser()
+parser.add_argument("--dir", default=".", required=False)
+parser.add_argument("run", action="store_true")
+args = parser.parse_args()
+DIR = args.dir
+MODE = args.run
+PROCESSES = multiprocessing.cpu_count() // 4
+DRAFT = os.path.join(DIR, "draft.out")
 
 
 def load_list():
     return [
         os.path.join(DIR, i) for i in os.listdir(DIR)
-        if i.endswith('.sh')
+        if i.endswith(".sh")
     ]
 
 
 def sh(file):
-    return 'module load use.own; ' \
-           'module load vcftools0113; ' \
-           'module load python365; ' \
-           f'bash {file}'
+    return f"bash {file}"
 
 
 def pipeline(file):
     cmd = sh(file)
-    with open (DRAFT, 'a') as f:
+    with open (DRAFT, "a") as f:
         f.write(f"{datetime.datetime.now():%Y%m%d_%H%M%S} {cmd}\n")
     if MODE: # if script is running with run option
         os.system(cmd)
@@ -50,11 +49,11 @@ def add_tasks(task_queue):
     return task_queue
 
 
-def run():
+def main():
     empty_task_queue = multiprocessing.Queue()
     full_task_queue = add_tasks(empty_task_queue)
     processes = []
-    print(f'Running with {PROCESSES} processes!')
+    print(f"Running with {PROCESSES} processes!")
     start = time.time()
     for n in range(PROCESSES):
         p = multiprocessing.Process(
@@ -63,8 +62,8 @@ def run():
         p.start()
     for p in processes:
         p.join()
-    print(f'Time taken = {time.time() - start:.10f}')
+    print(f"Time taken = {time.time() - start:.10f}")
 
 
-if __name__ == '__main__':
-    run()
+if __name__ == "__main__":
+    main()
