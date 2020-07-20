@@ -17,10 +17,12 @@ DRAFT = os.path.join(DIR, "draft.out")
 
 
 def load_list():
-    return [
+    job_list = [
         os.path.join(DIR, i) for i in os.listdir(DIR)
         if i.endswith(".sh")
     ]
+    job_list = sorted(job_list)
+    return job_list
 
 
 def sh(file):
